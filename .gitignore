@@ -10,3 +10,8 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+http_crawler/tmp
+http_crawler/config.json
+http_crawler/debug
+http_crawler/log.txt

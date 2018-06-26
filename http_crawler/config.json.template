@@ -1,0 +1,17 @@
+{
+  "Proxy": "socks5://127.0.0.1:8760",
+  "Retry": 3,
+  "SavePath": "tmp",
+  "MaxRoutine": 12,
+  "Targets": [
+    {
+      "URL": "http://www.pixiv.net/",
+      "SaveRule": {
+        "ContentType": "text/plain"
+      },
+      "DigRule": {
+        "Deep": 2
+      }
+    }
+  ]
+}
