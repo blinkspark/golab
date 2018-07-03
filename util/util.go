@@ -29,3 +29,5 @@ func CheckDirIsExist(dirName string) bool {
 	}
 	return exist
 }
+
+func Ignore(o interface{}) {}
