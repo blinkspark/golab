@@ -15,3 +15,5 @@ http_crawler/tmp
 http_crawler/config.json
 http_crawler/debug
 http_crawler/log.txt
+
+*.DS_Store
