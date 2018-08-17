@@ -17,3 +17,4 @@ http_crawler/debug
 http_crawler/log.txt
 
 *.DS_Store
+.idea
