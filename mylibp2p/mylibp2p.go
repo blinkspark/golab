@@ -5,9 +5,13 @@ import (
 	"crypto/rand"
 	"fmt"
 	"github.com/blinkspark/golab/mylibp2p/config"
+	"github.com/blinkspark/golab/util"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-crypto"
 	"github.com/libp2p/go-libp2p-host"
+	"github.com/libp2p/go-libp2p-peer"
+	"github.com/libp2p/go-libp2p-peerstore"
+	"github.com/multiformats/go-multiaddr"
 )
 
 func makeRandomHost(port int32) (host.Host, crypto.PrivKey, error) {
@@ -38,11 +42,24 @@ func makeHostFromConfig(c *config.Config) (host.Host, error) {
 	}
 	listenAddr := fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", c.Port)
 
-	return libp2p.New(context.Background(),
+	h, err := libp2p.New(context.Background(),
 		libp2p.NATPortMap(),
 		libp2p.Identity(privKey),
 		libp2p.EnableRelay(0, 1),
 		libp2p.ListenAddrStrings(listenAddr))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range c.Peers {
+		id, err := peer.IDB58Decode(p.ID)
+		util.CheckErr(err)
+		for _, a := range p.Addrs {
+			ma := multiaddr.StringCast(a)
+			h.Peerstore().AddAddr(id, ma, peerstore.PermanentAddrTTL)
+		}
+	}
+	return h, nil
 }
 
 func InitHost() (host.Host, error) {
