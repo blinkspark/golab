@@ -53,7 +53,7 @@ func InitHost() (host.Host, error) {
 			return nil, err
 		}
 
-		config.SaveConfig(newHost, privKey)
+		config.SaveConfigByData(newHost, privKey)
 		return newHost, nil
 	}
 	return makeHostFromConfig(hConfig)
