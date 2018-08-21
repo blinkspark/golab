@@ -52,7 +52,7 @@ func main() {
 
 	h.SetStreamHandler(Protocol, func(stream net.Stream) {
 		log.Println("got a stream!")
-		receivePeerInfos(stream, h, c)
+		receivePeerInfos(stream, h)
 		savePeers(c, h)
 		sendPeerInfos(stream, h, c)
 		stream.Close()
@@ -66,7 +66,7 @@ func main() {
 		}
 
 		sendPeerInfos(stream, h, c)
-		receivePeerInfos(stream, h, c)
+		receivePeerInfos(stream, h)
 		savePeers(c, h)
 
 		stream.Close()
@@ -75,7 +75,7 @@ func main() {
 	select {}
 }
 
-func receivePeerInfos(stream net.Stream, h host.Host, c *config.Config) {
+func receivePeerInfos(stream net.Stream, h host.Host) {
 	reader := bufio.NewReader(stream)
 	dec := mjson.Multicodec(false).Decoder(reader)
 	tpi := new(config.TaggedPeerInfo)
