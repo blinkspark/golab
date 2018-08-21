@@ -52,23 +52,9 @@ func main() {
 
 	h.SetStreamHandler(Protocol, func(stream net.Stream) {
 		log.Println("got a stream!")
-		reader := bufio.NewReader(stream)
-		dec := mjson.Multicodec(false).Decoder(reader)
-		tpi := new(config.TaggedPeerInfo)
-		for {
-			err := dec.Decode(tpi)
-			if err != nil {
-				break
-			}
-			log.Println(*tpi)
-			id, err := peer.IDB58Decode(tpi.ID)
-			util.CheckErr(err)
-			for _, a := range tpi.Addrs {
-				h.Peerstore().AddAddr(id, multiaddr.StringCast(a), peerstore.PermanentAddrTTL)
-			}
-		}
+		receivePeerInfos(stream, h, c)
 		savePeers(c, h)
-
+		sendPeerInfos(stream, h, c)
 		stream.Close()
 	})
 
@@ -79,28 +65,50 @@ func main() {
 			continue
 		}
 
-		writer := bufio.NewWriter(stream)
-		enc := mjson.Multicodec(false).Encoder(writer)
-
-		for _, tpi := range c.Peers {
-			if tpi.Tag == "Self" {
-				tpi.Tag = ""
-				maddrs := h.Addrs()
-				addrs := make([]string, 0)
-				for _, ma := range maddrs {
-					addrs = append(addrs, ma.String())
-				}
-				tpi.Addrs = addrs
-			}
-			enc.Encode(tpi)
-		}
-
-		writer.Flush()
+		sendPeerInfos(stream, h, c)
+		receivePeerInfos(stream, h, c)
+		savePeers(c, h)
 
 		stream.Close()
 	}
 
 	select {}
+}
+
+func receivePeerInfos(stream net.Stream, h host.Host, c *config.Config) {
+	reader := bufio.NewReader(stream)
+	dec := mjson.Multicodec(false).Decoder(reader)
+	tpi := new(config.TaggedPeerInfo)
+	for {
+		err := dec.Decode(tpi)
+		if err != nil {
+			break
+		}
+		log.Println(*tpi)
+		id, err := peer.IDB58Decode(tpi.ID)
+		util.CheckErr(err)
+		for _, a := range tpi.Addrs {
+			h.Peerstore().AddAddr(id, multiaddr.StringCast(a), peerstore.PermanentAddrTTL)
+		}
+	}
+}
+
+func sendPeerInfos(stream net.Stream, h host.Host, c *config.Config) {
+	writer := bufio.NewWriter(stream)
+	enc := mjson.Multicodec(false).Encoder(writer)
+	for _, tpi := range c.Peers {
+		if tpi.Tag == "Self" {
+			tpi.Tag = ""
+			maddrs := h.Addrs()
+			addrs := make([]string, 0)
+			for _, ma := range maddrs {
+				addrs = append(addrs, ma.String())
+			}
+			tpi.Addrs = addrs
+		}
+		enc.Encode(tpi)
+	}
+	writer.Flush()
 }
 
 func savePeers(c *config.Config, h host.Host) {
