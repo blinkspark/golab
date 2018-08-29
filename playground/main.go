@@ -11,10 +11,13 @@ import (
 
 	"github.com/satori/go.uuid"
 
+	"bufio"
 	"github.com/blinkspark/golab/util"
+	"log"
 )
 
 func main() {
+	testForDefer()
 }
 
 func uuidTest() {
@@ -47,4 +50,37 @@ func downloadSpeed() {
 	KBpS := BpS / 1024
 	MBpS := KBpS / 1024
 	fmt.Println(MBpS, " MB/s")
+}
+
+func testRet() (err error) {
+	if s, err := genRet(); err != nil {
+		log.Println(s)
+		log.Println(err)
+	}
+	return
+}
+
+func genRet() (string, error) {
+	return "a", bufio.ErrBufferFull
+}
+
+type deferFunc func()
+
+func testDefer() {
+	var df deferFunc = func() {
+		log.Println("a")
+	}
+	defer df()
+	df = func() {
+		log.Println("b")
+	}
+	defer df()
+}
+
+func testForDefer() {
+	for i := 0; i < 10; i++ {
+		defer func(n int) {
+			log.Println(n)
+		}(i)
+	}
 }
