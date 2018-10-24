@@ -1,6 +1,9 @@
 package blink_config
 
-import "testing"
+import (
+	"github.com/blinkspark/golab/util"
+	"testing"
+)
 
 func TestJsonConfig_Save(t *testing.T) {
 	config := JsonConfig{"Test": "Hello"}
@@ -11,16 +14,17 @@ func TestJsonConfig_Save(t *testing.T) {
 }
 
 func TestLoadConfig(t *testing.T) {
-	config := LoadConfig("./config.json")
-	if t == nil {
-		t.Fail()
+	config, err := LoadConfig("config.json")
+	if err != nil {
+		t.Fatal(err)
 	} else {
 		t.Log(config)
 	}
 }
 
 func TestJsonConfig_Get(t *testing.T) {
-	config := LoadConfig("config.json")
+	config, err := LoadConfig("config.json")
+	util.CheckErr(err)
 	str := config.Get("Test").(string)
 	if str != "Hello" {
 		t.Fail()
@@ -30,7 +34,8 @@ func TestJsonConfig_Get(t *testing.T) {
 }
 
 func TestJsonConfig_Set(t *testing.T) {
-	config := LoadConfig("config.json")
+	config, err := LoadConfig("config.json")
+	util.CheckErr(err)
 	config.Set("Test2", "test2")
 	str := config.Get("Test2").(string)
 	if str != "test2" {

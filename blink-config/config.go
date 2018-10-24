@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
-
-	"github.com/blinkspark/golab/util"
 )
 
 // JsonConfig main data type of this config pack
@@ -30,16 +28,27 @@ func (c *JsonConfig) Save(path string) error {
 	return nil
 }
 
-func LoadConfig(path string) JsonConfig {
+func LoadConfig(path string) (JsonConfig, error) {
 	f, err := os.Open(path)
-	util.CheckErr(err)
+	if err != nil {
+		return nil, err
+	}
 	defer f.Close()
 
 	reader := bufio.NewReader(f)
 	data, err := ioutil.ReadAll(reader)
-	util.CheckErr(err)
+	if err != nil {
+		return nil, err
+	}
 
 	var config JsonConfig
-	json.Unmarshal(data, &config)
-	return config
+	err = json.Unmarshal(data, &config)
+	if err != nil {
+		return nil, err
+	}
+	return config, nil
+}
+
+func NewConfig() JsonConfig {
+	return JsonConfig{}
 }
