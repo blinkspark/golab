@@ -3,15 +3,16 @@ package blink_config
 import (
 	"bufio"
 	"encoding/json"
-	"github.com/blinkspark/golab/util"
 	"io/ioutil"
 	"os"
+
+	"github.com/blinkspark/golab/util"
 )
 
 // JsonConfig main data type of this config pack
 type JsonConfig map[string]interface{}
 
-func (c *JsonConfig) Get(key string) (interface{}) {
+func (c *JsonConfig) Get(key string) interface{} {
 	return (*c)[key]
 }
 
@@ -19,7 +20,7 @@ func (c *JsonConfig) Set(key string, value interface{}) {
 	(*c)[key] = value
 }
 
-func (c *JsonConfig) Save(path string) (error) {
+func (c *JsonConfig) Save(path string) error {
 	data, err := json.Marshal(*c)
 	if err != nil {
 		return err
@@ -29,7 +30,7 @@ func (c *JsonConfig) Save(path string) (error) {
 	return nil
 }
 
-func LoadConfig(path string) (JsonConfig) {
+func LoadConfig(path string) JsonConfig {
 	f, err := os.Open(path)
 	util.CheckErr(err)
 	defer f.Close()
