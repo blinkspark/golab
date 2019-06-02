@@ -19,3 +19,5 @@ http_crawler/log.txt
 *.DS_Store
 .idea
 blink-spider/test.txt
+tmp
+blink-storage/*.key

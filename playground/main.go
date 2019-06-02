@@ -7,21 +7,46 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os/exec"
 	"time"
 
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 
 	"bufio"
-	"github.com/blinkspark/golab/util"
 	"log"
+
+	"github.com/blinkspark/golab/util"
 )
 
 func main() {
-	testForDefer()
+	cmdTest()
+}
+
+func cmdTest() {
+	cmd := exec.Command("ls")
+
+	reader, err := cmd.StdoutPipe()
+	util.CheckErr(err)
+	defer reader.Close()
+
+	err = cmd.Start()
+	util.CheckErr(err)
+
+	bufReader := bufio.NewReader(reader)
+	str, err := bufReader.ReadString(0)
+	if err != nil && err != io.EOF {
+		log.Println(err)
+		return
+	}
+
+	fmt.Println(str)
+
+	err = cmd.Wait()
+	util.CheckErr(err)
 }
 
 func uuidTest() {
-	u1 := uuid.Must(uuid.NewV4())
+	u1 := uuid.NewV4()
 	fmt.Println(u1)
 }
 
