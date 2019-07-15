@@ -33,7 +33,12 @@ var (
 	connect     string
 )
 
+var (
+	done chan bool
+)
+
 func main() {
+	done = make(chan bool)
 	flag.StringVar(&privKeyPath, "key", "priv.key", "-key /path/to/privatekey")
 	flag.StringVar(&configPath, "c", "config.json", "-c /path/to/config.json")
 	flag.IntVar(&port, "p", 22333, "-p PORT")
@@ -81,7 +86,10 @@ func main() {
 	}
 
 	fmt.Println(host.ID(), host.Addrs())
-	select {}
+	select {
+	case <-done:
+		fmt.Println("Done")
+	}
 }
 
 func handleSubscription(sub *pubsub.Subscription) {
@@ -116,7 +124,7 @@ func getPrivKey(privKeyPath string) (crypto.PrivKey, error) {
 			return nil, err
 		}
 	}
-	
+
 	priv, err := crypto.UnmarshalPrivateKey(keyData)
 	if err != nil {
 		return nil, err
